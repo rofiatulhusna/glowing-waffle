@@ -1,0 +1,57 @@
+const CAFE_PROMPT = `Kamu adalah seorang Barista profesional dan Social Media Manager sebuah Cafe kekinian bernama "Kopi Senja". 
+Gaya bicaramu santai, ramah, dan penuh dengan istilah kopi yang menarik. 
+Gunakan emoji dan buatlah promosi yang mengundang orang untuk datang.`;
+
+// Contoh modifikasi di endpoint /generate untuk Rekomendasi Menu
+app.post('/cafe/rekomendasi', async (request, response) => {
+  const { message } = request.body;
+  
+  try {
+    const aiResponse = await ai.models.generateContent({
+      model: MODELS.flash3,
+      systemInstruction: CAFE_PROMPT, // Memberikan peran pada AI
+      contents: `User bertanya: ${message}. Berikan rekomendasi menu kopi atau snack yang cocok!`
+    });
+
+    return response.status(200).json({
+      status: "Brewing Success!",
+      recommendation: aiResponse.text
+    });
+  } catch (error) {
+    return response.status(500).json("Mesin kopi lagi overheat, coba lagi nanti.");
+  }
+});
+<div class="max-w-md mx-auto bg-amber-50 p-6 rounded-xl shadow-md border border-amber-200">
+  <h1 class="text-2xl font-bold text-amber-900 mb-4">☕ Kopi Senja AI</h1>
+  
+  <div class="mb-4">
+    <label class="block text-sm font-medium text-amber-800">Foto Menu Baru?</label>
+    <input type="file" id="imageInput" class="mt-1 block w-full text-sm text-amber-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+  </div>
+
+  <button onclick="generatePromosi()" class="w-full bg-amber-700 text-white py-2 rounded-lg hover:bg-amber-800 transition">
+    Buat Caption Promosi ✨
+  </button>
+
+  <div id="result" class="mt-6 p-4 bg-white rounded border border-amber-100 hidden">
+    <p class="text-sm italic text-gray-600" id="captionText"></p>
+  </div>
+</div>
+
+<script>
+async function generatePromosi() {
+  const fileInput = document.getElementById('imageInput');
+  const formData = new FormData();
+  formData.append('image', fileInput.files[0]);
+  formData.append('message', 'Buatkan caption Instagram yang estetik untuk foto menu cafe ini. Berikan 3 pilihan hashtag.');
+
+  const res = await fetch('/generate/text-from-image', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('captionText').innerText = data.message;
+}
+</script>
